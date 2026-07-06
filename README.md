@@ -246,3 +246,68 @@ N(x,t)
 
 
 \end{document}
+
+## TIV v2
+TIV v2 — Tensor Informational Value Model
+1. Wprowadzenie do modelu tensorowego
+W wersji v1 waluta TIV była skalarem:
+•	TIV(x,t)∈R
+W wersji v2 przechodzimy do pełnego tensora wartości:
+•	TIV(x,t)∈Rn×n
+Tensor pozwala modelować:
+•	wielowarstwową wartość,
+•	kierunkowość przepływu,
+•	sprzężenia między węzłami,
+•	gradienty topologiczne,
+•	lokalne deformacje wartości.
+To jest zgodne z TIMDR, TRM i FIELDCORE.
+2. Definicja tensora TIV
+Tensor wartości:
+•	TIV(x,t)=VA(x,t)+VB(x,t)
+gdzie:
+•	VA — tensor nominalny (diagonalny),
+•	VB — tensor informacyjny (pełny).
+3. Tensor nominalny (reżim A)
+Nominalna wartość jest diagonalna:
+•	VA(x,t)=N(x,t)⋅I
+gdzie:
+•	I — macierz jednostkowa.
+To oznacza, że nominalna wartość nie ma kierunkowości.
+4. Tensor informacyjny (reżim B)
+Dynamiczna wartość jest pełnym tensorem:
+VB(x,t)=αRR(x,t)+αCC(x,t)+αHH(x,t)
+gdzie:
+•	R(x,t) — tensor ryzyka,
+•	C(x,t) — tensor kontekstu,
+•	H(x,t) — tensor historii przepływu.
+Każdy z nich jest macierzą n×n.
+5. Tensor przepływu TIMDR
+Przepływ między węzłami jest tensorem:
+∂TIV(x,t)∂t=∑y∈N(x)Fy→x(t)−∑z∈N(x)Fx→z(t)+S(x,t)
+gdzie:
+•	Fy→x(t) — tensor przepływu,
+•	S(x,t) — tensor źródeł/pochłaniaczy.
+6. Tensor topologii TRM
+Topologia TRM jest tensorem połączeń:
+Γ(x,y)∈Rn×n
+Tensor topologiczny wpływa na wartość:
+ΔTIV(γ)=∫01F(γ(s),s) ds
+7. Tensor GIA (globalna interpretacja)
+Pole interpretacyjne jest tensorem:
+Φ(x,t)∈Rn×n
+Modulacja wartości:
+TIVΦ(x,t)=Φ(x,t)⋅TIV(x,t)
+8. Tensor FIELDCORE (stabilizacja)
+Pole stabilizujące jest tensorem:
+Σ(x,t)∈Rn×n
+Dynamika stabilizacji:
+∂TIV(x,t)∂t∣Σ=−β(TIV(x,t)−TIV∗(x))
+gdzie:
+•	β — tensor siły stabilizacji,
+•	TIV∗(x) — tensor równowagi.
+9. Ostateczne równanie tensorowe TIV v2
+∂TIV(x,t)∂t=Flow(x,t)+Φ(x,t)⋅TIV(x,t)−β(TIV(x,t)−TIV∗(x))
+10. Finalna definicja TIV v2
+TIV(x,t)=N(x,t)I+αRR(x,t)+αCC(x,t)+αHH(x,t)
+TIVfinal(x,t)=Φ(x,t)[N(x,t)I+αRR(x,t)+αCC(x,t)+αHH(x,t)]−β(TIV(x,t)−TIV∗(x))
+
