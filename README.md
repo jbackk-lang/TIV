@@ -1,4 +1,6 @@
 # TIV
+https://doi.org/10.5281/zenodo.21216173
+
 TIMDR Informational Value
 # TIV — TIMDR Informational Value
 
