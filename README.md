@@ -458,6 +458,58 @@ def simulate():
 # Uruchomienie symulacji
 # -----------------------------
 
+🚀 Jak Uruchomić?
+Zainstaluj zależności:
+
+bash
+pip install -r requirements.txt
+Uruchom serwer:
+
+bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+Otwórz dokumentację interaktywną:
+
+text
+http://localhost:8000/docs
+📝 Przykład zapytania curl
+Oblicz TIV:
+
+bash
+curl -X POST "http://localhost:8000/tiv/calculate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "node_id": 1,
+    "nominal_value": 1.0,
+    "risk": 0.2,
+    "context": 0.15,
+    "history": 0.1,
+    "alpha_R": 1.0,
+    "alpha_C": 0.8,
+    "alpha_H": 0.6,
+    "tiv_star": 1.2,
+    "beta": 0.1
+  }'
+Analiza GSF:
+
+bash
+curl -X POST "http://localhost:8000/gsf/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tensors": [[0.8, 0.2, 0.1], [0.3, 0.7, 0.4], [0.1, 0.2, 0.9]],
+    "continuity_score": 0.75,
+    "model_overload": 0.6
+  }'
+✅ Podsumowanie
+Ten kod tworzy praktyczne, działające API, które:
+
+Implementuje TIV (wersję skalarną i tensorową) z mechanizmami stabilizacji.
+
+Implementuje analizę GSF (TIMDR, GIA, FIELDCORE, VALIDATOR).
+
+Udostępnia te funkcje przez REST API, gotowe do integracji z innymi systemami.
+
+Jest to solidna podstawa do dalszego rozwoju – dodawania rzeczywistych danych, bardziej zaawansowanych symulacji i interfejsu użytkownika.
+
 if __name__ == "__main__":
     history = simulate()
     for step, norms in enumerate(history[::100]):  # co 100 kroków
