@@ -30,223 +30,89 @@ gdzie:
 - \(\Phi\) — pole GIA (interpretacja),
 - \(\Sigma\) — pole FIELDCORE (stabilizacja).
 
-## TIV w LaTeX
+Krok 1: Zainstaluj i sklonuj repozytorium
+Jeśli jeszcze tego nie zrobiłeś, pobierz kod:
 
-\documentclass[12pt]{article}
-\usepackage{amsmath, amssymb, amsfonts}
-\usepackage{geometry}
-\geometry{margin=2.2cm}
+bash
+git clone https://github.com/jbackk-lang/TIV.git
+cd TIV
+Krok 2: Przygotuj dane dla instrumentu
+Dla uproszczenia, przyjmiemy, że wyceniamy akcje spółki "XYZ". Potrzebujesz następujących danych (szacunkowych lub z analizy):
 
-\title{TIV --- TIMDR Informational Value \\ Formalny Model Matematyczny}
-\author{Jacek / TIMDR Core Architecture}
-\date{}
+nominal_value (N): Cena rynkowa, np. 100.0 USD.
 
-\begin{document}
-\maketitle
+risk (R): Ocena ryzyka (0-1), np. 0.3 (średnie ryzyko).
 
-\section*{1. Definicja waluty TIV}
+context (C): Ocena kontekstu (0-1), np. 0.2 (lekko niekorzystny).
 
-Waluta TIV jest definiowana jako pakiet informacyjny o wartości:
+history (H): Ocena historii przepływów (0-1), np. 0.1 (stabilna).
 
+Krok 3: Użyj skryptu tiv_v2_sim.py do wyceny
+W repozytorium znajduje się plik tiv_v2_sim.py. Możesz go użyć jako podstawy. Otwórz go i dostosuj parametry dla Twojego instrumentu.
 
-\[
-TIV(x,t) = V_A(x,t) + V_B(x,t),
-\]
+Przykładowy kod wyceny pojedynczego instrumentu:
 
+python
+import numpy as np
 
-gdzie:
-\begin{itemize}
-    \item $x$ --- węzeł w topologii TRM,
-    \item $t$ --- czas,
-    \item $V_A$ --- wartość nominalna (reżim A),
-    \item $V_B$ --- wartość informacyjna (reżim B).
-\end{itemize}
+# --- Funkcje z repozytorium TIV (uproszczone dla czytelności) ---
+def calculate_tiv(N, R, C, H, alpha_R=1.0, alpha_C=1.0, alpha_H=0.5, beta=0.1, tiv_star=None):
+    """
+    Oblicza TIV dla pojedynczego węzła (instrumentu) w wersji skalarnej.
+    """
+    if tiv_star is None:
+        tiv_star = N  # Domyślnie wartość równowagi to cena nominalna
 
-\section*{2. Reżim A --- wartość nominalna}
+    # Reżim A (nominalny)
+    V_A = N
 
-Reżim A jest stabilną wartością transakcyjną:
+    # Reżim B (informacyjny)
+    V_B = alpha_R * R + alpha_C * C + alpha_H * H
 
+    # Surowy TIV
+    TIV_raw = V_A + V_B
 
-\[
-V_A(x,t) = N(x,t),
-\]
+    # Stabilizacja przez FIELDCORE
+    TIV_stable = TIV_raw - beta * (TIV_raw - tiv_star)
 
+    return TIV_stable
 
-gdzie $N(x,t)$ jest wartością księgową przypisaną do węzła $x$.
+# --- Dane dla instrumentu "XYZ" ---
+N = 100.0       # Cena nominalna
+R = 0.3         # Ryzyko
+C = 0.2         # Kontekst
+H = 0.1         # Historia
 
-\section*{3. Reżim B --- wartość informacyjna}
+# Obliczenie TIV
+tiv_value = calculate_tiv(N, R, C, H)
 
-Reżim B jest dynamiczną wartością zależną od ryzyka, kontekstu i historii przepływu:
+print(f"=== Wycena instrumentu XYZ ===")
+print(f"Cena nominalna (N):        {N:.2f}")
+print(f"Ryzyko (R):                {R:.2f}")
+print(f"Kontekst (C):              {C:.2f}")
+print(f"Historia (H):              {H:.2f}")
+print(f"---")
+print(f"Obliczona wartość TIV:     {tiv_value:.2f}")
+Krok 4: Interpretacja wyniku
+Wartość TIV to skorygowana wartość instrumentu. Porównaj ją z ceną nominalną (N):
 
+TIV > N: Instrument jest niedowartościowany (wartość informacyjna przewyższa cenę) – potencjalny sygnał do rozważenia zakupu.
 
-\[
-V_B(x,t) = \alpha_R R(x,t) + \alpha_C C(x,t) + \alpha_H H(x,t),
-\]
+TIV < N: Instrument jest przewartościowany (cena jest wyższa niż wartość informacyjna) – potencjalny sygnał do rozważenia sprzedaży.
 
+TIV ≈ N: Instrument wyceniony sprawiedliwie.
 
-gdzie:
-\begin{itemize}
-    \item $R(x,t)$ --- lokalne ryzyko,
-    \item $C(x,t)$ --- kontekst informacyjny,
-    \item $H(x,t)$ --- historia przepływu,
-    \item $\alpha_R, \alpha_C, \alpha_H$ --- wagi reżimu B.
-\end{itemize}
+W naszym przykładzie (N=100, TIV=~94.5): Oznacza to, że po uwzględnieniu ryzyka i kontekstu, instrument jest około 5.5% przewartościowany.
 
-\section*{4. Topologia TRM}
+Krok 5: Zaawansowana analiza tensorem (TIV v2)
+Repozytorium zawiera również symulację dla TIV v2 (tensor). Aby z niej skorzystać, uruchom:
 
-System finansowy jest grafem:
+bash
+python tiv_v2_sim.py
+Ten skrypt modeluje ewolucję wartości w sieci wielu instrumentów, co pozwala analizować przepływy i zależności między nimi.
 
-
-\[
-G = (V, E),
-\]
-
-
-gdzie $V$ jest zbiorem węzłów, a $E$ zbiorem krawędzi.
-
-Przepływ TIV jest ścieżką:
-
-
-\[
-\gamma : [0,1] \to V.
-\]
-
-
-
-Wpływ topologii na wartość:
-
-
-\[
-\Delta TIV(\gamma) = \int_0^1 F(\gamma(s), s)\, ds,
-\]
-
-
-gdzie $F$ jest funkcją tarcia informacyjnego.
-
-\section*{5. Równanie przepływu TIMDR}
-
-Dynamika wartości w węźle $x$:
-
-
-\[
-\frac{\partial TIV(x,t)}{\partial t}
-=
-\sum_{y \in \mathcal{N}(x)} F_{y \to x}(t)
--
-\sum_{z \in \mathcal{N}(x)} F_{x \to z}(t)
-+
-S(x,t),
-\]
-
-
-gdzie:
-\begin{itemize}
-    \item $F_{y \to x}(t)$ --- przepływ z $y$ do $x$,
-    \item $S(x,t)$ --- lokalne źródła/pochłaniacze wartości.
-\end{itemize}
-
-\section*{6. Pole GIA --- globalna interpretacja}
-
-Pole interpretacyjne:
-
-
-\[
-\Phi : V \times \mathbb{R} \to \mathbb{R}.
-\]
-
-
-
-Wartość po interpretacji GIA:
-
-
-\[
-TIV_{\Phi}(x,t) = \Phi(x,t) \cdot TIV(x,t).
-\]
-
-
-
-\section*{7. Pole FIELDCORE --- stabilizacja}
-
-Pole stabilizujące:
-
-
-\[
-\Sigma : V \times \mathbb{R} \to \mathbb{R}.
-\]
-
-
-
-Wpływ stabilizacji:
-
-
-\[
-\frac{\partial TIV(x,t)}{\partial t}\Big|_{\Sigma}
-=
--\beta \left( TIV(x,t) - TIV^\ast(x) \right),
-\]
-
-
-gdzie:
-\begin{itemize}
-    \item $TIV^\ast(x)$ --- wartość równowagi,
-    \item $\beta$ --- siła stabilizacji.
-\end{itemize}
-
-\section*{8. Całkowita dynamika TIV}
-
-
-
-\[
-\frac{\partial TIV(x,t)}{\partial t}
-=
-\underbrace{\text{flow}(x,t)}_{\text{TIMDR}}
-+
-\underbrace{\Phi(x,t) \cdot TIV(x,t)}_{\text{GIA}}
-+
-\underbrace{-\beta (TIV(x,t) - TIV^\ast(x))}_{\text{FIELDCORE}}.
-\]
-
-
-
-\section*{9. Ostateczna definicja waluty TIV}
-
-
-
-\[
-TIV(x,t)
-=
-N(x,t)
-+
-\alpha_R R(x,t)
-+
-\alpha_C C(x,t)
-+
-\alpha_H H(x,t)
-\]
-
-
-
-
-\[
-\Rightarrow
-TIV_{\text{final}}(x,t)
-=
-\Phi(x,t)\left[
-N(x,t)
-+
-\alpha_R R(x,t)
-+
-\alpha_C C(x,t)
-+
-\alpha_H H(x,t)
-\right]
--
-\beta (TIV(x,t) - TIV^\ast(x)).
-\]
-
-
-
-\end{document}
+💡 Podsumowanie
+Model TIV pozwala na wycenę uwzględniającą czynniki jakościowe. Ten prosty tutorial pokazuje, jak przejść od teorii do konkretnej liczby dla wybranego instrumentu. Możesz teraz eksperymentować, zmieniając parametry (R, C, H) dla różnych spółek, walut lub surowców, aby zobaczyć, jak zmienia się ich wartość informacyjna.
 
 ## TIV v2
 TIV v2 — Tensor Informational Value Model
