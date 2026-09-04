@@ -1,4 +1,4 @@
-# TIMDR-Token
+# TIMDR-Token - TIV
 
 Lokalny system "tokenów" (etykiet możliwości + prosty licznik `balance`)
 dla ekosystemu repo Jacka (jbackk-lang), z zapisem stanu do pliku
