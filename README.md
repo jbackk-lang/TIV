@@ -1,6 +1,6 @@
 # TIMDR-Token - TIV
 
-Lokalny system "tokenów" (etykiet możliwości + prosty licznik `balance`)
+Lokalny system Value "tokenów" (etykiet możliwości + prosty licznik `balance`)
 dla ekosystemu repo Jacka (jbackk-lang), z zapisem stanu do pliku
 **szyfrowanego w spoczynku** (AES-256-GCM), żeby przetrwał między
 uruchomieniami skryptów, obejmował repo dopisywane później, i nie leżał
